@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { register } from '../services/admin'
 
 function Register() {
   const [firstName, setFirstName] = useState('')
@@ -8,11 +9,12 @@ function Register() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [phone, setPhone] = useState('')
 
-
+  // get the navigation hook
   const navigate = useNavigate()
 
-  const onRegister = () => {
+  const onRegister = async () => {
     if (firstName.length == 0) {
       toast.error('please enter first name')
     } else if (lastName.length == 0) {
@@ -26,16 +28,20 @@ function Register() {
     } else if (password != confirmPassword) {
       toast.error('password does not match')
     } else {
-
-        
-      toast.success('Successfully registered a new user')
-      navigate('/login')
+      // call post /admin/register api
+      const result = await register(firstName, lastName, email, password, phone)
+      if (result['status'] == 'success') {
+        toast.success('Successfully registered a new user')
+        navigate('/login')
+      } else {
+        toast.error(result['error'])
+      }
     }
   }
 
   return (
     <div>
-      <h2 className='page-header'>Register</h2>
+      <h2 className='page-header'>Register User</h2>
       <div className='row'>
         <div className='col'></div>
         <div className='col'>
@@ -61,6 +67,14 @@ function Register() {
               <input
                 onChange={(e) => setEmail(e.target.value)}
                 type='email'
+                className='form-control'
+              />
+            </div>
+            <div className='mb-3'>
+              <label htmlFor=''>Phone Number</label>
+              <input
+                onChange={(e) => setPhone(e.target.value)}
+                type='tel'
                 className='form-control'
               />
             </div>
